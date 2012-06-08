@@ -1,6 +1,7 @@
 package uk.co.jbothma.taxonomy;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -16,56 +17,27 @@ public class AggHierarchClust {
 			 {"a","b"}, {"a","c"}, {"b","c"}, {"b","d"}, {"d","b"},
 			 {"a","b","c"}, {"b","c","d"},
 			 {"a","b","c","d"}, {"a","c","b","d"}};
-		
-		Set pairs = new HashSet();
-
-		for (String[] termA : terms) {
-			for (String[] termB : terms) {
-				Set pair = new HashSet();
-				pair.add(termA);
-				pair.add(termB);
-
-				if (termA == termB) {
-					System.out.println("Skipping comparison to self for " + Arrays.toString(termA));
+		Set<Cluster> clusters = new HashSet<Cluster>();
+		for (String[] primTerm : terms) {
+			clusters.add(new Cluster(new Term(primTerm)));
+		}
+		Set<Set<Cluster>> pairs = new HashSet<Set<Cluster>>();
+		for (Cluster clustA : clusters.toArray(new Cluster[]{})) {
+			for (Cluster clustB : clusters.toArray(new Cluster[]{})) {
+				if (clustA.equals(clustB)) {
 					continue;
 				}
-
+				Set<Cluster> pair = new HashSet<Cluster>();
+				pair.add(clustA);
+				pair.add(clustB);
 				pairs.add(pair);
 			}
 		}
-		Iterator pairIter = pairs.iterator();
-		while (pairIter.hasNext()) {
-			Set pair = (Set) pairIter.next();
-			String[][] termPair = (String[][]) pair.toArray(new String[][]{});
-//			System.out.println(Arrays.deepToString(termPair));
-			float similarity = termSim(termPair[0], termPair[1]);
-			System.out.println(similarity + "\t" + Arrays.toString(termPair[0]) + "\t" + Arrays.toString(termPair[1]));
-		}
-	}
-
-	static float termSim(String[] termA, String[] termB) {
-		float similarity;
-		float shareCount = 0F;
 		
-		if (termHead(termA).equals(termHead(termB))) {
-			similarity = 0.5F;
-		} else {
-			similarity = 0F;
+		for (Set<Cluster> pair : pairs) {
+			Cluster[] clusterPair = pair.toArray(new Cluster[]{});
+			float similarity = clusterPair[0].similarityTo(clusterPair[1]);
+			System.out.println(similarity + "\t" + Arrays.deepToString(clusterPair));
 		}
-		
-		for (String aPart : termA) {
-			for (String bPart : termB) {
-				if (aPart.equals(bPart)) {
-					shareCount++;
-				}
-			}
-		}
-		
-		similarity += shareCount/((float)termA.length+termB.length);
-		return similarity;
-	}
-	
-	static String termHead(String[] term) {
-		return term[term.length-1];
-	}
+	}	
 }
