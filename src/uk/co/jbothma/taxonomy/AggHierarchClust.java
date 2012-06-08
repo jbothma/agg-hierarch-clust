@@ -2,6 +2,7 @@ package uk.co.jbothma.taxonomy;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,11 +32,11 @@ public class AggHierarchClust {
 	}
 	
 	public void cluster() {
-		makePairs();
-		calculatePairSimilarity();
-		
-		for (ClusterPair pair : pairs) {
-			System.out.println(pair);
+		// TODO: Stop clustering when clusters don't have common heads any more
+		while (clusters.size() > 1) {
+			makePairs();
+			calculatePairSimilarity();
+			mergeMaximalPair();
 		}
 	}
 	
@@ -56,5 +57,14 @@ public class AggHierarchClust {
 		for (ClusterPair pair : pairs) {
 			pair.calculateSimilarity();
 		}
+	}
+	
+	private void mergeMaximalPair() {
+		ClusterPair max = Collections.max(pairs, new ClusterPairSimilarityComparator());
+		System.out.println("Max: " + max);
+		Cluster merged = new Cluster(max.getA().getTerms(), max.getB().getTerms());
+		clusters.remove(max.getA());
+		clusters.remove(max.getB());
+		clusters.add(merged);
 	}
 }

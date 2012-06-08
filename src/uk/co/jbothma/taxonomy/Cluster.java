@@ -14,6 +14,12 @@ class Cluster {
 		terms.add(term);
 	}
 	
+	public Cluster(Set<Term> termsA, Set<Term> termsB) {
+		terms = new HashSet<Term>();
+		terms.addAll(termsA);
+		terms.addAll(termsB);
+	}
+
 	@Override
 	public boolean equals(Object that) {
 		Cluster thatCluster = (Cluster) that;
