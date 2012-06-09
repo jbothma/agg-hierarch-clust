@@ -61,4 +61,13 @@ class Cluster {
 		}
 		return similaritySum / (terms.size()*that.getTerms().size());
 	}
+	
+	public boolean headsEqual(Cluster that) {
+		String thisHead = this.terms.iterator().next().getHead();
+		for (Term thatTerm : that.getTerms()) {
+			if (!thatTerm.getHead().equals(thisHead))
+				return false;
+		}
+		return true;
+	}
 }

@@ -23,7 +23,7 @@ public class AggHierarchClust {
 	 */
 	public static void main(String[] args) {
 		String[][] terms = 
-			{{"a"}, {"b"}, {"c"},
+			{{"a"}, {"b"}, {"c"}, {"e"},
 			 {"a","b"}, {"a","c"}, {"b","c"}, {"b","d"}, {"d","b"},
 			 {"a","b","c"}, {"b","c","d"},
 			 {"a","b","c","d"}, {"a","c","b","d"}};
@@ -32,11 +32,14 @@ public class AggHierarchClust {
 	}
 	
 	public void cluster() {
-		// TODO: Stop clustering when clusters don't have common heads any more
-		while (clusters.size() > 1) {
+		do {
 			makePairs();
 			calculatePairSimilarity();
 			mergeMaximalPair();
+		} while (mergeMaximalPair());
+
+		for (Cluster cluster : clusters) {
+			System.out.println(cluster);
 		}
 	}
 	
@@ -59,12 +62,20 @@ public class AggHierarchClust {
 		}
 	}
 	
-	private void mergeMaximalPair() {
+	/**
+	 * 
+	 * @return true after merging clusters whose heads are equal
+	 * 		   false without merging clusters whose heads don't equal
+	 */
+	private boolean mergeMaximalPair() {
 		ClusterPair max = Collections.max(pairs, new ClusterPairSimilarityComparator());
-		System.out.println("Max: " + max);
+		if (!max.getA().headsEqual(max.getB()))
+			return false;
 		Cluster merged = new Cluster(max.getA().getTerms(), max.getB().getTerms());
+		System.out.println("Merging similarity " + max.getSimilarity() + " " + max.getA() + " and " + max.getB());
 		clusters.remove(max.getA());
 		clusters.remove(max.getB());
 		clusters.add(merged);
+		return true;
 	}
 }
