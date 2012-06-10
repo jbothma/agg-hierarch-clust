@@ -34,7 +34,7 @@ public class AggHierarchClust {
 		do {
 			System.out.println(clusters.size() + " clusters");
 			printMem();
-			maxPair = calculatePairSimilarity();
+			maxPair = maxSimilarPair();
 			printMem();
 		} while (mergePair(maxPair));
 
@@ -53,7 +53,7 @@ public class AggHierarchClust {
 	            + " / " + runtime.maxMemory() / mb);
 	}
 		
-	private ClusterPair calculatePairSimilarity() {
+	private ClusterPair maxSimilarPair() {
 		Iterator<Cluster> clustIter;
 		Cluster clustB;
 		ClusterPair pair; // current pair

@@ -49,7 +49,7 @@ class Term {
 		float shareCount = 0F;
 		
 		if (this.getHead().equals(that.getHead())) {
-			similarity = 0.5F;
+			similarity = 1F;
 		} else {
 			similarity = 0F;
 		}
@@ -62,7 +62,7 @@ class Term {
 			}
 		}
 		
-		similarity += shareCount/((float)this.parts.length + that.getParts().length);
+		similarity += shareCount/((float)this.parts.length + (float)that.getParts().length);
 		return similarity;
 	}
 }
