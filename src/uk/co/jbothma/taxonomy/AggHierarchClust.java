@@ -1,9 +1,7 @@
 package uk.co.jbothma.taxonomy;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 public class AggHierarchClust {
@@ -32,34 +30,50 @@ public class AggHierarchClust {
 	}
 	
 	public void cluster() {
+		ClusterPair maxPair;
 		do {
-			makePairs();
-			calculatePairSimilarity();
-			mergeMaximalPair();
-		} while (mergeMaximalPair());
+			System.out.println(clusters.size() + " clusters");
+			printMem();
+			maxPair = calculatePairSimilarity();
+			printMem();
+		} while (mergePair(maxPair));
 
 		for (Cluster cluster : clusters) {
-			System.out.println(cluster);
+			if (cluster.getTerms().size() <=2)
+				continue;
+			System.out.println(cluster.getTerms().iterator().next().getHead() + " " + cluster);
 		}
 	}
 	
-	private void makePairs() {
-		pairs = new HashSet<ClusterPair>();
+	private void printMem() {
+		Runtime runtime = Runtime.getRuntime();
+		int mb = 1024*1024;
+		System.out.println("Used Memory:"
+	            + (runtime.totalMemory() - runtime.freeMemory()) / mb
+	            + " / " + runtime.maxMemory() / mb);
+	}
+		
+	private ClusterPair calculatePairSimilarity() {
+		Iterator<Cluster> clustIter;
+		Cluster clustB;
+		ClusterPair pair; // current pair
+		ClusterPair maxPair = null;
+		
 		for (Cluster clustA : clusters.toArray(new Cluster[]{})) {
-			for (Cluster clustB : clusters.toArray(new Cluster[]{})) {
+			clustIter = clusters.iterator();
+			while (clustIter.hasNext()) {
+				clustB = clustIter.next();
 				if (clustA.equals(clustB)) {
 					continue;
 				}
-				ClusterPair pair = new ClusterPair(clustA, clustB);
-				pairs.add(pair);
+				pair = new ClusterPair(clustA, clustB);
+				pair.calculateSimilarity();
+				if (maxPair == null || pair.getSimilarity() > maxPair.getSimilarity()) {
+					maxPair = pair;
+				}
 			}
 		}
-	}
-	
-	private void calculatePairSimilarity() {
-		for (ClusterPair pair : pairs) {
-			pair.calculateSimilarity();
-		}
+		return maxPair;
 	}
 	
 	/**
@@ -67,14 +81,13 @@ public class AggHierarchClust {
 	 * @return true after merging clusters whose heads are equal
 	 * 		   false without merging clusters whose heads don't equal
 	 */
-	private boolean mergeMaximalPair() {
-		ClusterPair max = Collections.max(pairs, new ClusterPairSimilarityComparator());
-		if (!max.getA().headsEqual(max.getB()))
+	private boolean mergePair(ClusterPair maxPair) {
+		if (!maxPair.getA().headsEqual(maxPair.getB()))
 			return false;
-		Cluster merged = new Cluster(max.getA().getTerms(), max.getB().getTerms());
-		System.out.println("Merging similarity " + max.getSimilarity() + " " + max.getA() + " and " + max.getB());
-		clusters.remove(max.getA());
-		clusters.remove(max.getB());
+		Cluster merged = new Cluster(maxPair.getA().getTerms(), maxPair.getB().getTerms());
+		System.out.println("Merging similarity " + maxPair.getSimilarity() + " " + maxPair.getA() + " and " + maxPair.getB());
+		clusters.remove(maxPair.getA());
+		clusters.remove(maxPair.getB());
 		clusters.add(merged);
 		return true;
 	}
