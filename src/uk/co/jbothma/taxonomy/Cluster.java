@@ -6,7 +6,7 @@ import java.util.Set;
 
 import uk.co.jbothma.taxonomy.Term;
 
-class Cluster {
+public class Cluster {
 	private Set<Term> terms;
 	
 	public Cluster(Term term) {

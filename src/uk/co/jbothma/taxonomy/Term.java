@@ -2,7 +2,7 @@ package uk.co.jbothma.taxonomy;
 
 import java.util.Arrays;
 
-class Term {
+public class Term {
 	String[] parts;
 	
 	public Term(String[] parts) {

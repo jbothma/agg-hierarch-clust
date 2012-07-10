@@ -32,27 +32,14 @@ public class AggHierarchClust {
 	public void cluster() {
 		ClusterPair maxPair;
 		do {
-			System.out.println(clusters.size() + " clusters");
-			printMem();
 			maxPair = maxSimilarPair();
-			printMem();
 		} while (mergePair(maxPair));
-
-		for (Cluster cluster : clusters) {
-			if (cluster.getTerms().size() <=2)
-				continue;
-			System.out.println(cluster.getTerms().iterator().next().getHead() + " " + cluster);
-		}
 	}
 	
-	private void printMem() {
-		Runtime runtime = Runtime.getRuntime();
-		int mb = 1024*1024;
-		System.out.println("Used Memory:"
-	            + (runtime.totalMemory() - runtime.freeMemory()) / mb
-	            + " / " + runtime.maxMemory() / mb);
+	public Set<Cluster> getClusters() {
+		return clusters;
 	}
-		
+			
 	private ClusterPair maxSimilarPair() {
 		Iterator<Cluster> clustIter;
 		Cluster clustB;
@@ -85,7 +72,6 @@ public class AggHierarchClust {
 		if (!maxPair.getA().headsEqual(maxPair.getB()))
 			return false;
 		Cluster merged = new Cluster(maxPair.getA().getTerms(), maxPair.getB().getTerms());
-		System.out.println("Merging similarity " + maxPair.getSimilarity() + " " + maxPair.getA() + " and " + maxPair.getB());
 		clusters.remove(maxPair.getA());
 		clusters.remove(maxPair.getB());
 		clusters.add(merged);
